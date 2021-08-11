@@ -300,7 +300,7 @@ def guessGame(player):
             break
         die = random.randint(1, 6)
         print('You rolled a', die, 'on the die.')
-        print('You had previously guessed the number ', guess1, '.', sep='')
+        print('You had previously guessed the number {}.'.format(guess1))
         if guess1 == die:
             print('Congrats you got it. You have received 25 Tokens')
         else:
