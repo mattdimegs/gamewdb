@@ -10,7 +10,6 @@ db = mysql.connector.connect(
 )
 mycursor = db.cursor()
 
-player = ''
 
 def questions():
     returning = input('Returning User? y/n: ')
@@ -143,8 +142,6 @@ def mainMenu(player, mypassword_queue):
 
 def developer():
     print('Welcome to the Development Panel.')
-    pusername = ''
-    ppassword = ''
 
 
 def administrator(player):
