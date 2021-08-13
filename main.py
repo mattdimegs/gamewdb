@@ -12,10 +12,6 @@ mycursor = db.cursor()
 
 player = ''
 
-# test = input('Test: ').encode()
-
-# print("SHAKE-128: ", hashlib.shake_128(test).hexdigest(64))
-
 def questions():
     returning = input('Returning User? y/n: ')
     if returning == 'y':
@@ -33,32 +29,34 @@ def registration():
     ppassword = ''
 
     if pp == ppverify:
-        ppassword += ppverify
+        ppassword = ppverify.encode()
+        encoded = hashlib.shake_128(ppassword).hexdigest(64)
     else:
         print('Passwords do not match, please try again!')
         while pp != ppverify:
             pp = input('Please enter your password: ')
             ppverify = input('Please verify your password: ')
 
-        ppassword += ppverify
+        ppassword = ppverify.encode()
+        encoded = hashlib.shake_128(ppassword).hexdigest(64)
 
     mypassword_queue = []
-    userPassTest = "select * from profiles where username = '%s' and password = '%s'" % (player, ppassword)
+    userTest = "select * from profiles where username = '%s';" % player
 
-    if player and ppassword != '':
-        mycursor.execute(userPassTest)
+    if player and encoded != '':
+        mycursor.execute(userTest)
         myresults = mycursor.fetchall()
         for row in myresults:
             for x in row:
                 mypassword_queue.append(x)
 
-    if (player and ppassword) in mypassword_queue:
+    if player in mypassword_queue:
         print('Something went wrong or credentials already in use, try again!')
         mypassword_queue = []
         registration()
 
-    userPassInsert = "insert into profiles(username, password, points, level) values('%s', '%s', 0, 0)" % (player,
-                                                                                                          ppassword)
+    userPassInsert = "insert into profiles(username, password, points, level) values('%s', '%s', 0, 0);" % (player,
+                                                                                                            encoded)
     mycursor.execute(userPassInsert)
     db.commit()
     print('Registration Complete, please login!')
@@ -68,8 +66,10 @@ def registration():
 def login():
     player = input('Please insert your name: ')
     ppassword = input('Please insert your password: ')
+    ppassword = ppassword.encode()
+    encoded = hashlib.shake_128(ppassword).hexdigest(64)
     mypassword_queue = []
-    userPassCheck = "select * from profiles where username = '%s' and password = '%s'" % (player, ppassword)
+    userPassCheck = "select * from profiles where username = '%s' and password = '%s'" % (player, encoded)
 
     if player and ppassword != '':
         mycursor.execute(userPassCheck)
@@ -80,7 +80,7 @@ def login():
     else:
         print('Error Occured')
 
-    if (player and ppassword) in mypassword_queue:
+    if (player and encoded) in mypassword_queue:
         print('Successful Login, your player id is {}.'.format(mypassword_queue[0]))
         mainMenu(player, mypassword_queue)
     else:
