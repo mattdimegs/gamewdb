@@ -196,30 +196,128 @@ def administrator(player):
                 administrator(player)
             else:
                 toContinue = input('The user is {}, do you wish to continue to '
-                                   'edit them: '.format(userinfo[1]))
+                                   'edit them? y/n: '.format(userinfo[1]))
                 if toContinue == 'y' or toContinue == 'yes':
                     print('User information:\n\tID: {}\n\tUsername: {}\n\tPoints: {}\n\tLevel: {}'
                           .format(userinfo[0], userinfo[1], userinfo[3], userinfo[4]))
                     edit = ''
                     while True:
                         try:
-                            edit = int(input(('Options: \n\t1. Everything\n\t2. Username\n\t3. Password\n\t4. Points\n'
-                                              '\t5. Level\nWhat would you like to edit: ')))
+                            edit = int(input(('Options: \n\t1. Username\n\t2. Password\n\t3. Points\n'
+                                              '\t4. Level\nWhat would you like to edit: ')))
                         except ValueError:
                             print('Please enter a valid #.')
                             continue
                         break
 
                     if edit == 1:
-                        print()
+                        print("You are editing {}'s username.".format(userinfo[1]))
+                        changeUser = input('What would you like to change the username to?: ')
+                        newUser = "UPDATE profiles SET username = '%s' WHERE(id = '%s')" % (changeUser, userinfo[0])
+                        print("You are going to change Player {}'s username from {} to {}!"
+                              .format(userinfo[0], userinfo[1], changeUser))
+                        correct = input('Is this correct? y/n: ')
+                        if correct == 'y':
+                            mycursor.execute(newUser)
+                            db.commit()
+                        else:
+                            administrator(player)
                     elif edit == 2:
-                        print()
+                        print("You are editing {}'s password.".format(userinfo[1]))
+                        changePass = input('What would you like to change the password to?: ')
+                        passVerify = input('Please verify the password: ')
+                        ppassword = ''
+
+                        if changePass == passVerify:
+                            correct = 'y'
+                            ppassword = passVerify.encode()
+                            encodedPass = hashlib.shake_128(ppassword).hexdigest(64)
+                        else:
+                            print('Passwords do not match, please try again!')
+                            while changePass != passVerify:
+                                pp = input('Please enter your password: ')
+                                ppverify = input('Please verify your password: ')
+
+                            correct = 'y'
+                            ppassword = passVerify.encode()
+                            encodedPass = hashlib.shake_128(ppassword).hexdigest(64)
+
+                        newPass = "UPDATE profiles SET password = '%s' WHERE(id = '%s')" % (encodedPass, userinfo[0])
+                        if correct == 'y':
+                            mycursor.execute(newPass)
+                            db.commit()
+                        else:
+                            administrator(player)
+
                     elif edit == 3:
-                        print()
+                        print("You are editing {}'s points.".format(userinfo[1]))
+                        options = ''
+                        while True:
+                            try:
+                                options = int(input(('Options: \n\t1. Add Points\n\t2. Remove Points\n\t3. Set Points'
+                                                     '\nWhich option do you wish to pick: ')))
+                            except ValueError:
+                                print('Please enter a valid #.')
+                                continue
+                            break
+                        if options == 1:
+                            addPoints = int(input('How many points do you wish to add: '))
+                            totalPoints = userinfo[3] + addPoints
+                            print("You will be adding {} points to {}'s account totaling {} points."
+                                  .format(addPoints, userinfo[1], totalPoints))
+                            confirm = input('Do you wish to continue? y/n: ')
+                            if confirm == 'y':
+                                mycursor.execute("UPDATE profiles SET points = '%s' WHERE(id = '%s')" %
+                                                 (totalPoints, pid))
+                                db.commit()
+                            else:
+                                administrator(player)
+                        if options == 2:
+                            remPoints = int(input('How many points do you wish to remove: '))
+                            totalPoints = userinfo[3] - remPoints
+                            print("You will be removing {} points to {}'s account totaling {} points."
+                                  .format(remPoints, userinfo[1], totalPoints))
+                            confirm = input('Do you wish to continue? y/n: ')
+                            if confirm == 'y':
+                                mycursor.execute("UPDATE profiles SET points = '%s' WHERE(id = '%s')" %
+                                                 (totalPoints, pid))
+                                db.commit()
+                            else:
+                                administrator(player)
+                        if options == 3:
+                            setPoints = int(input("What do you wish to set {}'s points to: ".format(userinfo[1])))
+                            print("You are changing {}'s points from {} to {}!"
+                                  .format(userinfo[1], userinfo[3], setPoints))
+                            confirm = input('Do you wish to continue? y/n: ')
+                            if confirm == 'y':
+                                mycursor.execute("UPDATE profiles SET points = '%s' WHERE(id = '%s')" %
+                                                 (setPoints, pid))
+                                db.commit()
+                            else:
+                                administrator(player)
+                        else:
+                            administrator(player)
                     elif edit == 4:
-                        print()
-                    elif edit == 5:
-                        print()
+                        print("You are editing {}'s level.".format(userinfo[1]))
+                        setLevel = int(input("What do you wish to set {}'s level to: ".format(userinfo[1])))
+                        print("You are changing {}'s level from {} to {}!"
+                              .format(userinfo[1], userinfo[4], setLevel))
+                        if setLevel == 0:
+                            print('This will grant {} player privileges.'.format(userinfo[1]))
+                        elif setLevel == 1:
+                            print('This will grant {} developer privileges!'.format(userinfo[1]))
+                        elif setLevel == 2:
+                            print('This will grant {} administrator privileges!'.format(userinfo[1]))
+                        else:
+                            print('That is not a valid Level, sending you back to the panel.')
+                            administrator(player)
+                        confirm = input('Do you wish to continue? y/n: ')
+                        if confirm == 'y':
+                            mycursor.execute("UPDATE profiles SET level = '%s' WHERE(id = '%s')" %
+                                             (setLevel, pid))
+                            db.commit()
+                        else:
+                            administrator(player)
                     else:
                         print()
                 else:
