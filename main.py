@@ -325,6 +325,49 @@ def administrator(player):
 
     elif choice == 2:
         print('Adding a User.')
+
+        addition = input('Please insert the new players name: ')
+        pp = input('Please enter their password: ')
+        ppverify = input('Please verify their password: ')
+        ppencode = ''
+
+        if pp == ppverify:
+            ppencode = ppverify.encode()
+            encoded = hashlib.shake_128(ppencode).hexdigest(64)
+        else:
+            print('Passwords do not match, please try again!')
+            while pp != ppverify:
+                pp = input('Please enter their password: ')
+                ppverify = input('Please verify their password: ')
+
+            ppencode = ppverify.encode()
+            encoded = hashlib.shake_128(ppencode).hexdigest(64)
+
+        mypassword_queue = []
+        userTest = "select * from profiles where username = '%s';" % addition
+
+        if addition and encoded != '':
+            mycursor.execute(userTest)
+            myresults = mycursor.fetchall()
+            for row in myresults:
+                for x in row:
+                    mypassword_queue.append(x)
+
+        if addition in mypassword_queue:
+            print('Something went wrong or credentials already in use, try again!')
+            mypassword_queue = []
+            administrator(player)
+
+        pointsStart = input('How many points should {} have to start?: '.format(addition))
+        levelStart = input("What should {}'s level be?: ".format(addition))
+
+        userPassInsert = "insert into profiles(username, password, points, level) values('%s', '%s', '%s', '%s');" % \
+                         (addition, encoded, pointsStart, levelStart)
+        mycursor.execute(userPassInsert)
+        db.commit()
+        print('User Added')
+        administrator(player)
+
     elif choice == 3:
         print('Removing a User.')
     else:
