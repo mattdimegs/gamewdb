@@ -1,12 +1,13 @@
 import mysql.connector
 import random
 import hashlib
+from config import *
 
 db = mysql.connector.connect(
-    host="69.122.121.144",
-    user="gamedb",
-    passwd="YellowBird1873!",
-    database='game'
+    host=hostAddress,
+    user=username,
+    passwd=password,
+    database=dbName
 )
 mycursor = db.cursor()
 
