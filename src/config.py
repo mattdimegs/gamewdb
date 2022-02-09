@@ -1,4 +1,4 @@
 hostAddress="x",
 username="x",
-password="x!",
+password="x",
 dbName='x'
